@@ -1,0 +1,1445 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Linux Essentials — Made by Mr. Root</title>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&family=Bebas+Neue&family=Hind+Siliguri:wght@400;500;600;700&family=VT323&display=swap" rel="stylesheet">
+<style>
+:root {
+  --green: #00ff41;
+  --green2: #00e637;
+  --green-dim: #00c832;
+  --green-dark: #001a07;
+  --cyan: #00e5ff;
+  --red: #ff1744;
+  --yellow: #ffd600;
+  --orange: #ff6d00;
+  --purple: #c77dff;
+  --bg: #020c04;
+  --bg2: #030e05;
+  --card: #050f06;
+  --card2: #071409;
+  --border: rgba(0,255,65,0.18);
+  --border2: rgba(0,255,65,0.08);
+  --text: #b2ffb2;
+  --muted: rgba(76,175,80,0.55);
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Share Tech Mono', monospace;
+  overflow-x: hidden;
+  min-height: 100vh;
+  cursor: crosshair;
+}
+
+/* SCANLINES */
+body::before {
+  content:'';
+  position:fixed; top:0; left:0; width:100%; height:100%;
+  background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.07) 2px, rgba(0,0,0,0.07) 4px);
+  pointer-events:none; z-index:9999;
+}
+
+/* MATRIX */
+#matrix { position:fixed; top:0; left:0; width:100%; height:100%; opacity:0.06; pointer-events:none; z-index:0; }
+
+/* PROGRESS BAR */
+#prog { position:fixed; top:0; left:0; height:3px; background:linear-gradient(90deg,var(--green),var(--cyan)); z-index:9998; box-shadow:0 0 8px var(--green); transition:width .1s; }
+
+/* CURSOR */
+.cur { position:fixed; width:10px; height:10px; background:var(--green); border-radius:50%; pointer-events:none; z-index:99999; box-shadow:0 0 12px var(--green); transform:translate(-50%,-50%); transition:transform .1s; }
+
+/* ============ HEADER ============ */
+header {
+  position:relative; z-index:10;
+  background: linear-gradient(180deg, #010a03 0%, #020c04 60%, #020c04 100%);
+  border-bottom: 2px solid rgba(0,255,65,0.35);
+  padding:0;
+  overflow:hidden;
+}
+
+/* Top accent line */
+header::after {
+  content:'';
+  position:absolute; top:0; left:0; right:0; height:3px;
+  background: linear-gradient(90deg, transparent 0%, var(--green) 20%, var(--cyan) 50%, var(--green) 80%, transparent 100%);
+  box-shadow: 0 0 18px var(--green);
+  animation: header-line-sweep 4s ease-in-out infinite;
+}
+
+@keyframes header-line-sweep {
+  0%,100%{ opacity:.6; }
+  50%{ opacity:1; box-shadow: 0 0 30px var(--green), 0 0 60px rgba(0,255,65,0.4); }
+}
+
+.header-inner {
+  max-width:1400px; margin:0 auto;
+  display:flex; align-items:center; gap:2.5rem;
+  padding:2rem 2.5rem;
+  position:relative;
+}
+
+/* HERO BACKGROUND GLOW */
+.header-glow {
+  position:absolute; inset:0;
+  background:
+    radial-gradient(ellipse 50% 120% at 18% 50%, rgba(0,255,65,0.07), transparent),
+    radial-gradient(ellipse 40% 80% at 80% 50%, rgba(0,229,255,0.04), transparent);
+  pointer-events:none;
+}
+
+/* Corner decorations */
+.header-glow::before {
+  content:'';
+  position:absolute; top:12px; left:12px;
+  width:60px; height:60px;
+  border-top:2px solid rgba(0,255,65,0.4);
+  border-left:2px solid rgba(0,255,65,0.4);
+}
+.header-glow::after {
+  content:'';
+  position:absolute; bottom:12px; right:12px;
+  width:60px; height:60px;
+  border-bottom:2px solid rgba(0,255,65,0.4);
+  border-right:2px solid rgba(0,255,65,0.4);
+}
+
+/* LOGO */
+.logo-wrap {
+  position:relative; flex-shrink:0;
+  width:160px; height:160px;
+}
+
+.logo-ring {
+  position:absolute; inset:-8px;
+  border-radius:50%;
+  border:2.5px solid var(--green);
+  box-shadow:0 0 25px var(--green), inset 0 0 25px rgba(0,255,65,0.12);
+  animation:ring-pulse 3s ease-in-out infinite;
+}
+
+@keyframes ring-pulse {
+  0%,100%{box-shadow:0 0 25px var(--green), inset 0 0 25px rgba(0,255,65,0.12);}
+  50%{box-shadow:0 0 55px var(--green), 0 0 80px rgba(0,255,65,0.35), inset 0 0 40px rgba(0,255,65,0.18);}
+}
+
+.logo-ring2 {
+  position:absolute; inset:-18px;
+  border-radius:50%;
+  border:1px solid rgba(0,255,65,0.28);
+  animation:ring-pulse 3s ease-in-out infinite reverse;
+}
+
+/* Third decorative ring */
+.logo-ring3 {
+  position:absolute; inset:-30px;
+  border-radius:50%;
+  border:1px dashed rgba(0,255,65,0.12);
+  animation:ring-spin 12s linear infinite;
+}
+
+@keyframes ring-spin {
+  from{transform:rotate(0deg);}
+  to{transform:rotate(360deg);}
+}
+
+.logo-img {
+  width:160px; height:160px;
+  border-radius:50%;
+  object-fit:cover;
+  border:4px solid rgba(0,255,65,0.25);
+  filter:drop-shadow(0 0 22px rgba(0,255,65,0.5)) drop-shadow(0 0 8px rgba(0,255,65,0.3));
+  display:block;
+  transition:filter .3s;
+}
+
+.logo-wrap:hover .logo-img {
+  filter:drop-shadow(0 0 35px rgba(0,255,65,0.8)) drop-shadow(0 0 15px rgba(0,255,65,0.5)) brightness(1.08);
+}
+
+/* HEADER TEXT */
+.header-text { flex:1; }
+
+/* Kali Linux label above brand name */
+.brand-kali {
+  font-family:'Orbitron',sans-serif;
+  font-size:clamp(0.7rem, 1.4vw, 1rem);
+  font-weight:700;
+  color:var(--cyan);
+  text-shadow:0 0 14px var(--cyan), 0 0 30px rgba(0,229,255,0.3);
+  letter-spacing:.35em;
+  text-transform:uppercase;
+  display:block;
+  margin-bottom:.4rem;
+  opacity:.9;
+}
+
+.brand-name {
+  font-family:'Orbitron',sans-serif;
+  font-size:clamp(2rem, 4.5vw, 3.5rem);
+  font-weight:900;
+  color:var(--green);
+  text-shadow:0 0 30px var(--green), 0 0 60px rgba(0,255,65,0.45), 0 0 100px rgba(0,255,65,0.15);
+  letter-spacing:.08em;
+  display:block;
+  margin-bottom:.3rem;
+  line-height:1;
+  animation: name-flicker 8s ease-in-out infinite;
+}
+
+@keyframes name-flicker {
+  0%,90%,100%{ text-shadow:0 0 30px var(--green), 0 0 60px rgba(0,255,65,0.45), 0 0 100px rgba(0,255,65,0.15); }
+  92%{ text-shadow:0 0 10px var(--green), 0 0 20px rgba(0,255,65,0.2); }
+  94%{ text-shadow:0 0 30px var(--green), 0 0 60px rgba(0,255,65,0.45), 0 0 100px rgba(0,255,65,0.15); }
+}
+
+.brand-sub {
+  font-family:'VT323',monospace;
+  font-size:clamp(1rem, 2vw, 1.5rem);
+  color:var(--cyan);
+  text-shadow:0 0 12px var(--cyan);
+  display:block;
+  margin-bottom:.7rem;
+  opacity:.85;
+}
+
+/* Linux Essentials title line */
+.brand-title-line {
+  font-family:'Orbitron',sans-serif;
+  font-size:clamp(1.1rem, 2.5vw, 2rem);
+  font-weight:700;
+  color:#e8ffe8;
+  text-shadow:0 0 20px rgba(255,255,255,0.2), 0 0 40px rgba(0,255,65,0.2);
+  letter-spacing:.12em;
+  display:block;
+  margin-bottom:.65rem;
+  border-left:3px solid var(--green);
+  padding-left:.75rem;
+}
+
+.brand-badge {
+  display:inline-flex; align-items:center; gap:.5rem;
+  background:rgba(0,255,65,0.06);
+  border:1px solid var(--border);
+  border-radius:20px;
+  padding:.3rem 1rem;
+  font-size:.78rem;
+  color:var(--green-dim);
+}
+
+.badge-dot { width:8px; height:8px; border-radius:50%; background:var(--green); animation:blink .8s step-end infinite; box-shadow:0 0 6px var(--green); }
+@keyframes blink { 0%,100%{opacity:1;} 50%{opacity:0;} }
+
+/* HEADER STATS */
+.header-stats {
+  display:flex; flex-direction:column; gap:.6rem; align-items:flex-end;
+}
+
+.stat-item {
+  display:flex; align-items:center; gap:.5rem;
+  font-size:.8rem; color:var(--muted);
+  border:1px solid rgba(0,255,65,0.1);
+  border-radius:6px;
+  padding:.3rem .7rem;
+  background:rgba(0,255,65,0.03);
+}
+
+.stat-num { color:var(--green); font-family:'Orbitron',sans-serif; font-size:.9rem; font-weight:700; }
+
+/* ============ NAV ============ */
+nav {
+  position:sticky; top:0; z-index:100;
+  background:rgba(2,12,4,0.97); backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--border);
+  display:flex; align-items:center; gap:0; overflow-x:auto;
+  padding:0 1rem;
+  scrollbar-width:none;
+}
+
+nav::-webkit-scrollbar { display:none; }
+
+.nav-link {
+  font-family:'Share Tech Mono',monospace; font-size:.72rem;
+  color:var(--muted); text-decoration:none;
+  padding:.65rem .8rem; white-space:nowrap;
+  border-bottom:2px solid transparent;
+  transition:all .2s; position:relative;
+  letter-spacing:.03em;
+}
+
+.nav-link:hover, .nav-link.active {
+  color:var(--green);
+  border-bottom-color:var(--green);
+  text-shadow:0 0 8px var(--green);
+}
+
+.nav-spacer { flex:1; }
+.nav-level {
+  font-size:.68rem; color:var(--yellow);
+  padding:.4rem .8rem;
+  border:1px solid rgba(255,214,0,.2);
+  border-radius:20px; margin:auto 0; white-space:nowrap;
+}
+
+/* ============ MAIN ============ */
+main { position:relative; z-index:10; max-width:1400px; margin:0 auto; padding:2rem 1.5rem 4rem; }
+
+/* INTRO BANNER */
+.intro-banner {
+  background:linear-gradient(135deg, rgba(0,255,65,0.06) 0%, rgba(0,229,255,0.04) 100%);
+  border:1px solid var(--border);
+  border-radius:6px;
+  padding:1.5rem 2rem;
+  margin-bottom:2.5rem;
+  display:flex; flex-wrap:wrap; gap:1.5rem; align-items:center;
+  position:relative; overflow:hidden;
+}
+
+.intro-banner::before {
+  content:'';
+  position:absolute; left:0; top:0; width:4px; height:100%;
+  background:linear-gradient(180deg, var(--green), var(--cyan));
+}
+
+.intro-title {
+  font-family:'Bebas Neue',sans-serif;
+  font-size:clamp(1.8rem,4vw,3rem);
+  color:var(--green);
+  letter-spacing:.1em;
+  line-height:1;
+  text-shadow:0 0 20px rgba(0,255,65,.4);
+}
+
+.intro-bn {
+  font-family:'Hind Siliguri',sans-serif;
+  font-size:1.1rem; color:var(--cyan);
+  margin-top:.25rem;
+  text-shadow:0 0 10px rgba(0,229,255,.3);
+}
+
+.intro-desc {
+  font-size:.85rem; color:var(--text); line-height:1.8; max-width:500px;
+}
+
+.intro-desc-bn {
+  font-family:'Hind Siliguri',sans-serif;
+  font-size:.85rem; color:rgba(178,255,178,.7); line-height:1.8; margin-top:.25rem;
+}
+
+/* LEVEL PATH */
+.level-path {
+  display:flex; gap:.5rem; flex-wrap:wrap; margin-bottom:2rem;
+}
+
+.level-chip {
+  display:flex; align-items:center; gap:.4rem;
+  padding:.4rem 1rem;
+  border-radius:20px; font-size:.72rem;
+  cursor:pointer; transition:all .2s;
+  border:1px solid var(--border);
+  background:var(--card);
+  text-decoration:none; color:var(--muted);
+}
+
+.level-chip:hover, .level-chip.act {
+  border-color:var(--green); color:var(--green);
+  background:rgba(0,255,65,.07);
+  box-shadow:0 0 15px rgba(0,255,65,.15);
+}
+
+.level-chip .lc-dot {
+  width:8px; height:8px; border-radius:50%;
+}
+
+.lv1 .lc-dot { background:#00ff41; }
+.lv2 .lc-dot { background:#ffd600; }
+.lv3 .lc-dot { background:#ff9800; }
+.lv4 .lc-dot { background:#f44336; }
+
+/* SECTION HEADER */
+.sec-head {
+  display:flex; align-items:center; gap:.75rem;
+  margin-bottom:1.25rem; padding-bottom:.75rem;
+  border-bottom:1px solid var(--border);
+  position:relative;
+}
+
+.sec-head::after {
+  content:''; position:absolute; bottom:-1px; left:0;
+  width:60px; height:2px;
+  background:var(--green); box-shadow:0 0 8px var(--green);
+}
+
+.sec-icon { font-size:1.5rem; filter:drop-shadow(0 0 6px var(--green)); }
+
+.sec-title {
+  font-family:'Bebas Neue',sans-serif;
+  font-size:clamp(1.4rem,3vw,2rem);
+  color:var(--green); letter-spacing:.08em;
+}
+
+.sec-title-bn {
+  font-family:'Hind Siliguri',sans-serif;
+  font-size:.85rem; color:var(--cyan);
+  margin-left:auto; padding:.2rem .6rem;
+  background:rgba(0,229,255,.06); border:1px solid rgba(0,229,255,.15);
+  border-radius:4px;
+}
+
+.level-tag {
+  font-size:.65rem; padding:.15rem .5rem;
+  border-radius:20px; margin-left:.5rem;
+  font-family:'Share Tech Mono',monospace;
+  letter-spacing:.05em;
+}
+
+.lt-basic { background:rgba(0,255,65,.12); color:var(--green); border:1px solid rgba(0,255,65,.25); }
+.lt-inter { background:rgba(255,214,0,.1); color:var(--yellow); border:1px solid rgba(255,214,0,.2); }
+.lt-adv { background:rgba(255,152,0,.1); color:var(--orange); border:1px solid rgba(255,152,0,.2); }
+.lt-expert { background:rgba(244,67,54,.1); color:var(--red); border:1px solid rgba(244,67,54,.2); }
+
+/* COMMAND CARDS */
+.cmd-grid {
+  display:grid;
+  grid-template-columns:repeat(auto-fill, minmax(340px,1fr));
+  gap:1.25rem;
+  margin-bottom:2.5rem;
+}
+
+.cmd-card {
+  background:var(--card);
+  border:1px solid var(--border2);
+  border-radius:6px;
+  overflow:hidden;
+  transition:all .25s;
+  position:relative;
+}
+
+.cmd-card::before {
+  content:''; position:absolute;
+  left:0; top:0; width:3px; height:100%;
+  opacity:0; transition:opacity .25s;
+}
+
+.cmd-card:hover { border-color:var(--green); transform:translateY(-3px); box-shadow:0 8px 30px rgba(0,255,65,.1); }
+.cmd-card:hover::before { opacity:1; background:linear-gradient(180deg,var(--green),var(--cyan)); }
+
+/* Level border colors */
+.cmd-card.lv-basic:hover { border-color:var(--green); }
+.cmd-card.lv-inter:hover { border-color:var(--yellow); box-shadow:0 8px 30px rgba(255,214,0,.1); }
+.cmd-card.lv-adv:hover { border-color:var(--orange); box-shadow:0 8px 30px rgba(255,152,0,.1); }
+.cmd-card.lv-expert:hover { border-color:var(--red); box-shadow:0 8px 30px rgba(244,67,54,.1); }
+
+.cmd-card.lv-inter:hover::before { background:linear-gradient(180deg,var(--yellow),var(--orange)); }
+.cmd-card.lv-adv:hover::before { background:linear-gradient(180deg,var(--orange),var(--red)); }
+.cmd-card.lv-expert:hover::before { background:linear-gradient(180deg,var(--red),var(--purple)); }
+
+/* CARD HEADER */
+.ch {
+  display:flex; align-items:center; gap:.5rem;
+  padding:.6rem .9rem;
+  background:rgba(0,255,65,.04);
+  border-bottom:1px solid var(--border2);
+}
+
+.ch-dots { display:flex; gap:4px; }
+.ch-dots span { width:9px; height:9px; border-radius:50%; }
+.d1{background:#ff5f57;} .d2{background:#ffbd2e;} .d3{background:#28ca41;}
+
+.ch-title {
+  font-family:'Orbitron',sans-serif; font-size:.62rem;
+  color:var(--green); letter-spacing:.08em; flex:1;
+}
+
+.ch-copy {
+  font-size:.6rem; color:var(--muted); background:none;
+  border:1px solid var(--border); padding:.15rem .4rem;
+  border-radius:2px; cursor:pointer; font-family:'Share Tech Mono',monospace;
+  transition:all .2s;
+}
+
+.ch-copy:hover { color:var(--green); border-color:var(--green); }
+.ch-copy.ok { color:var(--cyan); border-color:var(--cyan); }
+
+/* CARD BODY */
+.cb { padding:.9rem; }
+
+/* COMMAND ROW */
+.cmd-row {
+  margin-bottom:.9rem; padding-bottom:.9rem;
+  border-bottom:1px solid rgba(0,255,65,.05);
+}
+
+.cmd-row:last-child { margin-bottom:0; padding-bottom:0; border-bottom:none; }
+
+.cmd-line {
+  display:flex; align-items:flex-start; gap:.5rem;
+  margin-bottom:.35rem;
+}
+
+.cmd-prompt { color:var(--green-dim); font-size:.8rem; flex-shrink:0; margin-top:.05rem; user-select:none; }
+
+.cmd-code {
+  font-size:.82rem; color:var(--green);
+  line-height:1.6; word-break:break-all; flex:1;
+}
+
+.cmd-flag { color:var(--cyan); }
+.cmd-arg { color:var(--yellow); }
+.cmd-path { color:#ff9800; }
+.cmd-danger { color:var(--red); }
+
+/* BILINGUAL EXPLANATION */
+.cmd-explain {
+  padding:.5rem .7rem;
+  background:rgba(0,0,0,.35);
+  border-left:2px solid rgba(0,255,65,.2);
+  border-radius:0 3px 3px 0;
+  margin-top:.25rem;
+}
+
+.cmd-en {
+  font-size:.78rem; color:var(--text); line-height:1.6;
+}
+
+.cmd-bn {
+  font-family:'Hind Siliguri',sans-serif;
+  font-size:.8rem; color:rgba(178,255,178,.65);
+  line-height:1.7; margin-top:.25rem;
+}
+
+/* TIP BOX */
+.tip {
+  display:flex; gap:.5rem; align-items:flex-start;
+  padding:.55rem .75rem;
+  border-radius:3px; font-size:.76rem;
+  margin-top:.6rem;
+}
+
+.tip-y { background:rgba(255,214,0,.06); border:1px solid rgba(255,214,0,.18); color:var(--yellow); }
+.tip-r { background:rgba(255,23,68,.06); border:1px solid rgba(255,23,68,.2); color:#ff8a80; }
+.tip-c { background:rgba(0,229,255,.05); border:1px solid rgba(0,229,255,.18); color:var(--cyan); }
+.tip-g { background:rgba(0,255,65,.05); border:1px solid rgba(0,255,65,.18); color:var(--green-dim); }
+
+.tip-bn {
+  font-family:'Hind Siliguri',sans-serif;
+  font-size:.78rem; margin-top:.2rem; opacity:.75;
+}
+
+/* TABLE */
+.tbl-wrap { overflow-x:auto; border-radius:4px; border:1px solid var(--border); }
+
+table { width:100%; border-collapse:collapse; font-size:.78rem; }
+th { background:rgba(0,255,65,.08); color:var(--green); padding:.5rem .9rem; text-align:left; font-family:'Orbitron',sans-serif; font-size:.6rem; letter-spacing:.08em; border-bottom:1px solid var(--border); }
+td { padding:.5rem .9rem; border-bottom:1px solid rgba(0,255,65,.05); vertical-align:top; }
+tr:hover td { background:rgba(0,255,65,.03); }
+td:first-child { color:var(--cyan); white-space:nowrap; font-weight:bold; }
+td:nth-child(2) { color:var(--yellow); }
+td:last-child { color:rgba(178,255,178,.7); font-size:.75rem; }
+.td-bn { font-family:'Hind Siliguri',sans-serif; font-size:.77rem; color:rgba(178,255,178,.55); display:block; }
+
+/* PROGRESS BAR SECTION */
+.level-bars { margin:1.5rem 0; }
+
+.lb-row { display:flex; align-items:center; gap:1rem; margin-bottom:.7rem; }
+.lb-label { font-size:.75rem; width:160px; flex-shrink:0; }
+.lb-label span { font-family:'Hind Siliguri',sans-serif; font-size:.72rem; display:block; opacity:.55; }
+.lb-track { flex:1; height:5px; background:rgba(0,255,65,.08); border-radius:3px; overflow:hidden; }
+.lb-fill { height:100%; border-radius:3px; width:0%; transition:width 1.5s cubic-bezier(.25,1,.5,1); }
+.lbf-g { background:linear-gradient(90deg,var(--green),var(--cyan)); box-shadow:0 0 6px var(--green); }
+.lbf-y { background:linear-gradient(90deg,var(--yellow),var(--orange)); box-shadow:0 0 6px var(--yellow); }
+.lbf-o { background:linear-gradient(90deg,var(--orange),var(--red)); box-shadow:0 0 6px var(--orange); }
+.lbf-r { background:linear-gradient(90deg,var(--red),var(--purple)); box-shadow:0 0 6px var(--red); }
+.lb-pct { font-size:.72rem; color:var(--muted); width:35px; text-align:right; }
+
+/* WIDE CARD */
+.wide { grid-column:1/-1; }
+
+/* SECTION DIVIDER */
+.sec-div {
+  display:flex; align-items:center; gap:1rem;
+  margin:2.5rem 0 1.5rem;
+}
+
+.sec-div-line { flex:1; height:1px; background:var(--border); }
+.sec-div-label {
+  font-family:'Orbitron',sans-serif; font-size:.7rem;
+  color:var(--muted); letter-spacing:.15em; text-transform:uppercase;
+  padding:.3rem .8rem;
+  border:1px solid var(--border); border-radius:20px;
+  white-space:nowrap;
+}
+
+/* FOOTER */
+footer {
+  position:relative; z-index:10;
+  background:var(--bg2);
+  border-top:1px solid var(--border);
+  padding:2.5rem 2rem;
+  text-align:center;
+}
+
+.footer-logo-wrap {
+  display:inline-block; position:relative; margin-bottom:1rem;
+}
+
+.footer-logo {
+  width:70px; height:70px; border-radius:50%;
+  border:2px solid var(--green);
+  box-shadow:0 0 25px rgba(0,255,65,.4);
+  filter:drop-shadow(0 0 12px rgba(0,255,65,.3));
+  display:block; animation:float 4s ease-in-out infinite;
+}
+
+@keyframes float { 0%,100%{transform:translateY(0);} 50%{transform:translateY(-8px);} }
+
+.footer-name {
+  font-family:'Orbitron',sans-serif; font-size:1.1rem;
+  color:var(--green); letter-spacing:.1em;
+  text-shadow:0 0 15px var(--green);
+  margin-bottom:.4rem;
+}
+
+.footer-sub { font-size:.78rem; color:var(--muted); }
+.footer-sub-bn { font-family:'Hind Siliguri',sans-serif; font-size:.8rem; color:rgba(76,175,80,.5); margin-top:.25rem; }
+
+/* SEARCH */
+.search-box { position:relative; margin-bottom:2rem; }
+.search-input {
+  width:100%; background:var(--card); border:1px solid var(--border);
+  color:var(--green); padding:.75rem 1rem .75rem 2.5rem;
+  font-family:'Share Tech Mono',monospace; font-size:.9rem;
+  border-radius:4px; outline:none; transition:all .2s;
+}
+
+.search-input:focus { border-color:var(--green); box-shadow:0 0 20px rgba(0,255,65,.08); }
+.search-input::placeholder { color:var(--muted); }
+.search-icon { position:absolute; left:.8rem; top:50%; transform:translateY(-50%); color:var(--green-dim); }
+
+.search-res { margin-top:.5rem; display:none; }
+.search-res.on { display:block; }
+
+.sr-item {
+  background:var(--card); border:1px solid var(--border);
+  padding:.6rem 1rem; margin-bottom:.3rem; border-radius:3px;
+  cursor:pointer; transition:all .2s;
+}
+
+.sr-item:hover { border-color:var(--green); background:rgba(0,255,65,.04); }
+.sr-cmd { color:var(--green); font-size:.85rem; }
+.sr-en { color:var(--muted); font-size:.73rem; margin-top:.1rem; }
+.sr-bn { font-family:'Hind Siliguri',sans-serif; font-size:.75rem; color:rgba(76,175,80,.5); }
+
+/* BACK TOP */
+.btop {
+  position:fixed; bottom:1.5rem; right:1.5rem; z-index:200;
+  background:var(--card); border:1px solid var(--border);
+  border-radius:3px; width:40px; height:40px;
+  display:flex; align-items:center; justify-content:center;
+  color:var(--green); text-decoration:none; font-size:1.2rem;
+  opacity:0; pointer-events:none; transition:all .3s;
+}
+
+.btop.vis { opacity:1; pointer-events:all; }
+.btop:hover { box-shadow:0 0 15px var(--green); border-color:var(--green); }
+
+/* SECTION REVEAL */
+.section { opacity:0; transform:translateY(20px); transition:opacity .6s, transform .6s; }
+.section.vis { opacity:1; transform:translateY(0); }
+
+/* SCROLLBAR */
+::-webkit-scrollbar { width:6px; height:6px; }
+::-webkit-scrollbar-track { background:var(--bg); }
+::-webkit-scrollbar-thumb { background:rgba(0,255,65,.3); border-radius:3px; }
+::-webkit-scrollbar-thumb:hover { background:rgba(0,255,65,.5); }
+
+@media(max-width:640px) {
+  .cmd-grid { grid-template-columns:1fr; }
+  .header-stats { display:none; }
+  .header-inner { gap:1rem; }
+  .logo-wrap { width:80px; height:80px; }
+  .logo-img { width:80px; height:80px; }
+}
+</style>
+</head>
+<body>
+
+<div id="prog"></div>
+<canvas id="matrix"></canvas>
+<div class="cur" id="cur"></div>
+
+<!-- ======== HEADER ======== -->
+<header>
+  <div class="header-inner">
+    <div class="header-glow"></div>
+
+    <div class="logo-wrap">
+      <div class="logo-ring3"></div>
+      <div class="logo-ring2"></div>
+      <div class="logo-ring"></div>
+      <img class="logo-img" src="data:image/jpeg;base64,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" alt="Mr. Root" loading="lazy">
+    </div>
+
+    <div class="header-text">
+      <span class="brand-kali">⬡ Kali Linux &nbsp;·&nbsp; Penetration Testing Platform</span>
+      <span class="brand-name">Mr. Root</span>
+      <span class="brand-title-line">Linux Essentials Cheatsheet</span>
+      <span class="brand-sub">mrroot@kali:~# chmod +x knowledge.sh && ./knowledge.sh</span>
+      <div class="brand-badge">
+        <span class="badge-dot"></span>
+        Basic → Advanced &nbsp;|&nbsp; EN &amp; বাংলা &nbsp;|&nbsp; 2025 Edition
+      </div>
+    </div>
+
+    <div class="header-stats">
+      <div class="stat-item">🧱 <span class="stat-num">4</span>&nbsp;levels</div>
+      <div class="stat-item">⚡ <span class="stat-num">60+</span>&nbsp;commands</div>
+      <div class="stat-item">🌐 <span class="stat-num">2</span>&nbsp;languages</div>
+    </div>
+  </div>
+</header>
+
+<!-- NAV -->
+<nav>
+  <a href="#navigation" class="nav-link active">📂 Navigation</a>
+  <a href="#permissions" class="nav-link">🔐 Permissions</a>
+  <a href="#process" class="nav-link">📡 Process</a>
+  <a href="#ports" class="nav-link">🌐 Ports</a>
+  <a href="#scripts" class="nav-link">⚙️ Scripts</a>
+  <a href="#advanced" class="nav-link">🔥 Advanced</a>
+  <a href="#sysinfo" class="nav-link">💻 System</a>
+  <div class="nav-spacer"></div>
+  <div class="nav-level">Progress: Basic → Expert</div>
+</nav>
+
+<!-- MAIN -->
+<main>
+
+<!-- INTRO -->
+<div class="intro-banner section vis">
+  <div>
+    <div class="intro-title">Linux Essentials</div>
+    <div class="intro-bn">লিনাক্স এসেনশিয়ালস — মৌলিক থেকে এক্সপার্ট</div>
+  </div>
+  <div>
+    <div class="intro-desc">Everything you need to master Linux — from your very first <code>ls</code> command to advanced kernel exploits and privilege escalation. All commands explained in both English and Bengali.</div>
+    <div class="intro-desc-bn">প্রথম <code>ls</code> কমান্ড থেকে শুরু করে এডভান্সড কার্নেল এক্সপ্লয়িট পর্যন্ত — সব কমান্ড ইংরেজি ও বাংলায় ব্যাখ্যা করা হয়েছে।</div>
+  </div>
+</div>
+
+<!-- LEVEL FILTER -->
+<div class="level-path section vis">
+  <a href="#navigation" class="level-chip lv1 act">🟢 Basic / বেসিক</a>
+  <a href="#permissions" class="level-chip lv2">🟡 Intermediate / মধ্যবর্তী</a>
+  <a href="#advanced" class="level-chip lv3">🟠 Advanced / অ্যাডভান্সড</a>
+  <a href="#sysinfo" class="level-chip lv4">🔴 Expert / বিশেষজ্ঞ</a>
+</div>
+
+<!-- SKILL BARS -->
+<div class="section vis" style="margin-bottom:2rem;">
+  <div class="sec-head">
+    <span class="sec-icon">📊</span>
+    <h2 class="sec-title">Learning Path</h2>
+    <span class="sec-title-bn">শেখার পথ</span>
+  </div>
+  <div class="level-bars">
+    <div class="lb-row"><div class="lb-label">File Navigation<span>ফাইল নেভিগেশন</span></div><div class="lb-track"><div class="lb-fill lbf-g" data-w="95"></div></div><div class="lb-pct">95%</div></div>
+    <div class="lb-row"><div class="lb-label">Permissions<span>অনুমতি</span></div><div class="lb-track"><div class="lb-fill lbf-y" data-w="80"></div></div><div class="lb-pct">80%</div></div>
+    <div class="lb-row"><div class="lb-label">Process Mgmt<span>প্রসেস ম্যানেজমেন্ট</span></div><div class="lb-track"><div class="lb-fill lbf-y" data-w="70"></div></div><div class="lb-pct">70%</div></div>
+    <div class="lb-row"><div class="lb-label">Scripting<span>স্ক্রিপ্টিং</span></div><div class="lb-track"><div class="lb-fill lbf-o" data-w="60"></div></div><div class="lb-pct">60%</div></div>
+    <div class="lb-row"><div class="lb-label">Kernel / Priv Esc<span>কার্নেল / প্রিভ এস্ক</span></div><div class="lb-track"><div class="lb-fill lbf-r" data-w="40"></div></div><div class="lb-pct">40%</div></div>
+  </div>
+</div>
+
+<!-- SEARCH -->
+<div class="search-box section vis" id="search">
+  <span class="search-icon">🔎</span>
+  <input type="text" class="search-input" id="si" placeholder="Search commands... / কমান্ড খুঁজুন..." autocomplete="off">
+  <div class="search-res" id="sr"></div>
+</div>
+
+<!-- ======== BASIC LEVEL ======== -->
+<div class="sec-div section vis"><div class="sec-div-line"></div><div class="sec-div-label">🟢 BASIC — বেসিক</div><div class="sec-div-line"></div></div>
+
+<!-- NAVIGATION -->
+<section class="section" id="navigation">
+  <div class="sec-head">
+    <span class="sec-icon">📁</span>
+    <h2 class="sec-title">File & Directory Navigation <span class="level-tag lt-basic">BASIC</span></h2>
+    <span class="sec-title-bn">ফাইল ও ডিরেক্টরি নেভিগেশন</span>
+  </div>
+
+  <div class="cmd-grid">
+
+    <div class="cmd-card lv-basic">
+      <div class="ch"><div class="ch-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><span class="ch-title">Viewing Files & Folders</span><button class="ch-copy" onclick="copyCard(this)">copy</button></div>
+      <div class="cb">
+        <div class="cmd-row">
+          <div class="cmd-line"><span class="cmd-prompt">$</span><span class="cmd-code">ls</span></div>
+          <div class="cmd-explain"><div class="cmd-en">List files and folders in current directory.</div><div class="cmd-bn">বর্তমান ডিরেক্টরির ফাইল ও ফোল্ডার দেখায়।</div></div>
+        </div>
+        <div class="cmd-row">
+          <div class="cmd-line"><span class="cmd-prompt">$</span><span class="cmd-code">ls <span class="cmd-flag">-la</span></span></div>
+          <div class="cmd-explain"><div class="cmd-en">Detailed list including hidden files (starting with dot).</div><div class="cmd-bn">লুকানো ফাইলসহ বিস্তারিত তালিকা দেখায়।</div></div>
+        </div>
+        <div class="cmd-row">
+          <div class="cmd-line"><span class="cmd-prompt">$</span><span class="cmd-code">ls <span class="cmd-flag">-lh</span></span></div>
+          <div class="cmd-explain"><div class="cmd-en">Human-readable file sizes (KB, MB, GB).</div><div class="cmd-bn">ফাইলের সাইজ সহজে বোধগম্য ফরম্যাটে দেখায়।</div></div>
+        </div>
+        <div class="tip tip-c">ℹ️ <div><div>Use <code>ls -la</code> to see hidden config files — attackers love them! / <span class="tip-bn">পেন্টেস্টাররা সবসময় <code>ls -la</code> দিয়ে লুকানো ফাইল চেক করে!</span></div></div></div>
+      </div>
+    </div>
+
+    <div class="cmd-card lv-basic">
+      <div class="ch"><div class="ch-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><span class="ch-title">Moving Around</span><button class="ch-copy" onclick="copyCard(this)">copy</button></div>
+      <div class="cb">
+        <div class="cmd-row">
+          <div class="cmd-line"><span class="cmd-prompt">$</span><span class="cmd-code">pwd</span></div>
+          <div class="cmd-explain"><div class="cmd-en">Print current working directory — "Where am I?"</div><div class="cmd-bn">আমি এখন কোথায় আছি তা দেখায়।</div></div>
+        </div>
+        <div class="cmd-row">
+          <div class="cmd-line"><span class="cmd-prompt">$</span><span class="cmd-code">cd <span class="cmd-arg">/etc</span></span></div>
+          <div class="cmd-explain"><div class="cmd-en">Change directory to /etc (config files live here).</div><div class="cmd-bn">/etc ডিরেক্টরিতে যায় — এখানে কনফিগ ফাইল থাকে।</div></div>
+        </div>
+        <div class="cmd-row">
+          <div class="cmd-line"><span class="cmd-prompt">$</span><span class="cmd-code">cd <span class="cmd-arg">~</span></span></div>
+          <div class="cmd-explain"><div class="cmd-en">Go to home directory — your personal safe space.</div><div class="cmd-bn">হোম ডিরেক্টরিতে ফিরে যায়।</div></div>
+        </div>
+        <div class="cmd-row">
+          <div class="cmd-line"><span class="cmd-prompt">$</span><span class="cmd-code">cd <span class="cmd-arg">..</span></span></div>
+          <div class="cmd-explain"><div class="cmd-en">Go up one directory level.</div><div class="cmd-bn">এক লেভেল উপরে যায়।</div></div>
+        </div>
+        <div class="cmd-row">
+          <div class="cmd-line"><span class="cmd-prompt">$</span><span class="cmd-code">cd <span class="cmd-arg">-</span></span></div>
+          <div class="cmd-explain"><div class="cmd-en">Go back to previous directory — like a browser "back" button.</div><div class="cmd-bn">আগের ডিরেক্টরিতে ফিরে যায়।</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="cmd-card lv-basic">
+      <div class="ch"><div class="ch-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><span class="ch-title">Creating & Deleting</span><button class="ch-copy" onclick="copyCard(this)">copy</button></div>
+      <div class="cb">
+        <div class="cmd-row">
+          <div class="cmd-line"><span class="cmd-prompt">$</span><span class="cmd-code">mkdir <span class="cmd-arg">test</span></span></div>
+          <div class="cmd-explain"><div class="cmd-en">Create a new directory named "test".</div><div class="cmd-bn">"test" নামে নতুন ফোল্ডার তৈরি করে।</div></div>
+        </div>
+        <div class="cmd-row">
+          <div class="cmd-line"><span class="cmd-prompt">$</span><span class="cmd-code">mkdir <span class="cmd-flag">-p</span> <span class="cmd-arg">a/b/c</span></span></div>
+          <div class="cmd-explain"><div class="cmd-en">Create nested directories in one shot.</div><div class="cmd-bn">একসাথে নেস্টেড ফোল্ডার তৈরি করে।</div></div>
+        </div>
+        <div class="cmd-row">
+          <div class="cmd-line"><span class="cmd-prompt">$</span><span class="cmd-code">touch <span class="cmd-arg">file.txt</span></span></div>
+          <div class="cmd-explain"><div class="cmd-en">Create an empty file or update its timestamp.</div><div class="cmd-bn">খালি ফাইল তৈরি করে বা টাইমস্ট্যাম্প আপডেট করে।</div></div>
+        </div>
+        <div class="cmd-row">
+          <div class="cmd-line"><span class="cmd-prompt">$</span><span class="cmd-code"><span class="cmd-danger">rm -rf folder/</span></span></div>
+          <div class="cmd-explain"><div class="cmd-en">Force delete folder and all contents. NO UNDO!</div><div class="cmd-bn">ফোল্ডার ও সব কন্টেন্ট মুছে দেয়। কোনো আনডু নেই!</div></div>
+        </div>
+        <div class="tip tip-r">⚠️ <div><div><code>rm -rf /</code> deletes EVERYTHING. Never run this! / <span class="tip-bn"><code>rm -rf /</code> সবকিছু মুছে দেয়। কখনো এটা চালাবেন না!</span></div></div></div>
+      </div>
+    </div>
+
+    <div class="cmd-card lv-basic">
+      <div class="ch"><div class="ch-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><span class="ch-title">Reading Files</span><button class="ch-copy" onclick="copyCard(this)">copy</button></div>
+      <div class="cb">
+        <div class="cmd-row">
+          <div class="cmd-line"><span class="cmd-prompt">$</span><span class="cmd-code">cat <span class="cmd-arg">file.txt</span></span></div>
+          <div class="cmd-explain"><div class="cmd-en">Display entire file content at once.</div><div class="cmd-bn">পুরো ফাইলের কন্টেন্ট একসাথে দেখায়।</div></div>
+        </div>
+        <div class="cmd-row">
+          <div class="cmd-line"><span class="cmd-prompt">$</span><span class="cmd-code">head <span class="cmd-flag">-n 20</span> <span class="cmd-arg">file.txt</span></span></div>
+          <div class="cmd-explain"><div class="cmd-en">Show first 20 lines of a file.</div><div class="cmd-bn">ফাইলের প্রথম ২০ লাইন দেখায়।</div></div>
+        </div>
+        <div class="cmd-row">
+          <div class="cmd-line"><span class="cmd-prompt">$</span><span class="cmd-code">tail <span class="cmd-flag">-f</span> <span class="cmd-arg">logs.txt</span></span></div>
+          <div class="cmd-explain"><div class="cmd-en">Live view of file as it updates — great for log monitoring.</div><div class="cmd-bn">ফাইল আপডেট হওয়ার সাথে সাথে লাইভ দেখায় — লগ মনিটরিংয়ে দুর্দান্ত।</div></div>
+        </div>
+        <div class="cmd-row">
+          <div class="cmd-line"><span class="cmd-prompt">$</span><span class="cmd-code">less <span class="cmd-arg">file.txt</span></span></div>
+          <div class="cmd-explain"><div class="cmd-en">Scroll through file (press Q to quit).</div><div class="cmd-bn">ফাইল স্ক্রোল করে দেখায় (Q চাপলে বের হয়)।</div></div>
+        </div>
+        <div class="tip tip-y">💡 <div><div><code>tail -f /var/log/auth.log</code> — watch login attempts in real time! / <span class="tip-bn">লাইভ লগইন প্রচেষ্টা দেখার জন্য দুর্দান্ত!</span></div></div></div>
+      </div>
+    </div>
+
+    <div class="cmd-card lv-basic">
+      <div class="ch"><div class="ch-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><span class="ch-title">Searching & Finding</span><button class="ch-copy" onclick="copyCard(this)">copy</button></div>
+      <div class="cb">
+        <div class="cmd-row">
+          <div class="cmd-line"><span class="cmd-prompt">$</span><span class="cmd-code">find <span class="cmd-arg">/</span> <span class="cmd-flag">-name</span> <span class="cmd-arg">"*.conf"</span> 2>/dev/null</span></div>
+          <div class="cmd-explain"><div class="cmd-en">Find all .conf files. Ignore permission errors.</div><div class="cmd-bn">সব .conf ফাইল খোঁজে। এরর মেসেজ উপেক্ষা করে।</div></div>
+        </div>
+        <div class="cmd-row">
+          <div class="cmd-line"><span class="cmd-prompt">$</span><span class="cmd-code">find <span class="cmd-arg">.</span> <span class="cmd-flag">-type f -size +10M</span></span></div>
+          <div class="cmd-explain"><div class="cmd-en">Find files larger than 10MB.</div><div class="cmd-bn">১০ মেগাবাইটের বেশি ফাইল খোঁজে।</div></div>
+        </div>
+        <div class="cmd-row">
+          <div class="cmd-line"><span class="cmd-prompt">$</span><span class="cmd-code">grep <span class="cmd-flag">-r</span> <span class="cmd-arg">"password"</span> <span class="cmd-arg">/etc/</span></span></div>
+          <div class="cmd-explain"><div class="cmd-en">Recursively search for "password" in /etc/ — pentesters' gold mine.</div><div class="cmd-bn">/etc/-এ রিকার্সিভলি "password" শব্দ খোঁজে — পেন্টেস্টারের সোনার খনি।</div></div>
+        </div>
+        <div class="cmd-row">
+          <div class="cmd-line"><span class="cmd-prompt">$</span><span class="cmd-code">grep <span class="cmd-flag">-i</span> <span class="cmd-arg">"user"</span> <span class="cmd-arg">file.txt</span></span></div>
+          <div class="cmd-explain"><div class="cmd-en">Case-insensitive search — finds "User", "USER", "user".</div><div class="cmd-bn">ছোট/বড় হাতের পার্থক্য ছাড়া খোঁজে।</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="cmd-card lv-basic">
+      <div class="ch"><div class="ch-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><span class="ch-title">Copy, Move & Archive</span><button class="ch-copy" onclick="copyCard(this)">copy</button></div>
+      <div class="cb">
+        <div class="cmd-row">
+          <div class="cmd-line"><span class="cmd-prompt">$</span><span class="cmd-code">cp <span class="cmd-flag">-r</span> <span class="cmd-arg">dir1 dir2</span></span></div>
+          <div class="cmd-explain"><div class="cmd-en">Copy an entire folder recursively.</div><div class="cmd-bn">পুরো ফোল্ডার রিকার্সিভলি কপি করে।</div></div>
+        </div>
+        <div class="cmd-row">
+          <div class="cmd-line"><span class="cmd-prompt">$</span><span class="cmd-code">mv <span class="cmd-arg">old.txt new.txt</span></span></div>
+          <div class="cmd-explain"><div class="cmd-en">Rename a file (or move it to another location).</div><div class="cmd-bn">ফাইলের নাম পরিবর্তন করে বা স্থানান্তর করে।</div></div>
+        </div>
+        <div class="cmd-row">
+          <div class="cmd-line"><span class="cmd-prompt">$</span><span class="cmd-code">tar <span class="cmd-flag">-czf</span> <span class="cmd-arg">files.tar.gz folder/</span></span></div>
+          <div class="cmd-explain"><div class="cmd-en">Compress a folder to .tar.gz archive.</div><div class="cmd-bn">ফোল্ডার কম্প্রেস করে .tar.gz ফাইল তৈরি করে।</div></div>
+        </div>
+        <div class="cmd-row">
+          <div class="cmd-line"><span class="cmd-prompt">$</span><span class="cmd-code">tar <span class="cmd-flag">-xzf</span> <span class="cmd-arg">files.tar.gz</span></span></div>
+          <div class="cmd-explain"><div class="cmd-en">Extract .tar.gz archive.</div><div class="cmd-bn">.tar.gz আর্কাইভ এক্সট্র্যাক্ট করে।</div></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- PERMISSIONS -->
+<section class="section" id="permissions">
+  <div class="sec-head">
+    <span class="sec-icon">🔐</span>
+    <h2 class="sec-title">Permissions & Ownership <span class="level-tag lt-inter">INTERMEDIATE</span></h2>
+    <span class="sec-title-bn">অনুমতি ও মালিকানা</span>
+  </div>
+  <div class="cmd-grid">
+
+    <div class="cmd-card lv-inter">
+      <div class="ch"><div class="ch-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><span class="ch-title">chmod — Change Permissions</span><button class="ch-copy" onclick="copyCard(this)">copy</button></div>
+      <div class="cb">
+        <div class="cmd-row">
+          <div class="cmd-line"><span class="cmd-prompt">$</span><span class="cmd-code">chmod <span class="cmd-flag">+x</span> <span class="cmd-arg">script.sh</span></span></div>
+          <div class="cmd-explain"><div class="cmd-en">Make a script executable. Step 1 before running any script.</div><div class="cmd-bn">স্ক্রিপ্ট এক্সিকিউটেবল করে। যেকোনো স্ক্রিপ্ট চালানোর আগে প্রথম ধাপ।</div></div>
+        </div>
+        <div class="cmd-row">
+          <div class="cmd-line"><span class="cmd-prompt">$</span><span class="cmd-code">chmod <span class="cmd-arg">755</span> <span class="cmd-arg">file.sh</span></span></div>
+          <div class="cmd-explain"><div class="cmd-en">Owner=read+write+execute, Group=read+execute, Others=read+execute.</div><div class="cmd-bn">মালিক = পড়া+লেখা+চালানো, গ্রুপ = পড়া+চালানো, অন্যরা = পড়া+চালানো।</div></div>
+        </div>
+        <div class="cmd-row">
+          <div class="cmd-line"><span class="cmd-prompt">$</span><span class="cmd-code">chmod <span class="cmd-flag">-R</span> <span class="cmd-arg">755 /path/</span></span></div>
+          <div class="cmd-explain"><div class="cmd-en">Apply permissions recursively to entire directory.</div><div class="cmd-bn">পুরো ডিরেক্টরিতে রিকার্সিভলি অনুমতি প্রয়োগ করে।</div></div>
+        </div>
+        <div class="tip tip-y">💡 <div><div>Remember: chmod 777 = everyone can do everything = a security nightmare! / <span class="tip-bn">মনে রাখুন: chmod 777 = সবাই সব করতে পারে = নিরাপত্তার দুঃস্বপ্ন!</span></div></div></div>
+      </div>
+    </div>
+
+    <div class="cmd-card lv-inter">
+      <div class="ch"><div class="ch-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><span class="ch-title">SUID / SGID — Privilege Escalation Gold</span><button class="ch-copy" onclick="copyCard(this)">copy</button></div>
+      <div class="cb">
+        <div class="cmd-row">
+          <div class="cmd-line"><span class="cmd-prompt">$</span><span class="cmd-code">find / <span class="cmd-flag">-perm -4000</span> <span class="cmd-flag">-type f</span> 2>/dev/null</span></div>
+          <div class="cmd-explain"><div class="cmd-en">Find ALL SUID binaries on the system — runs as the file owner (often root!).</div><div class="cmd-bn">সিস্টেমে সমস্ত SUID বাইনারি খোঁজে — ফাইল মালিকের (প্রায়ই root!) হিসেবে চলে।</div></div>
+        </div>
+        <div class="cmd-row">
+          <div class="cmd-line"><span class="cmd-prompt">$</span><span class="cmd-code">find / <span class="cmd-flag">-perm -2000</span> <span class="cmd-flag">-type f</span> 2>/dev/null</span></div>
+          <div class="cmd-explain"><div class="cmd-en">Find SGID binaries — runs with group permissions of the file.</div><div class="cmd-bn">SGID বাইনারি খোঁজে — গ্রুপের অনুমতিতে চলে।</div></div>
+        </div>
+        <div class="cmd-row">
+          <div class="cmd-line"><span class="cmd-prompt">$</span><span class="cmd-code">chmod <span class="cmd-arg">4755</span> <span class="cmd-arg">file</span></span></div>
+          <div class="cmd-explain"><div class="cmd-en">Set SUID bit — file runs as owner (dangerous if misconfigured).</div><div class="cmd-bn">SUID বিট সেট করে — ফাইল মালিকের হিসেবে চলে (ভুল কনফিগ হলে বিপজ্জনক)।</div></div>
+        </div>
+        <div class="tip tip-r">🚨 <div><div>SUID on a shell binary = instant root shell for attackers! Check GTFOBins! / <span class="tip-bn">শেল বাইনারিতে SUID থাকলে = আক্রমণকারীর জন্য তাৎক্ষণিক root শেল!</span></div></div></div>
+      </div>
+    </div>
+
+    <div class="cmd-card lv-inter">
+      <div class="ch"><div class="ch-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><span class="ch-title">chown & Special Bits</span><button class="ch-copy" onclick="copyCard(this)">copy</button></div>
+      <div class="cb">
+        <div class="cmd-row">
+          <div class="cmd-line"><span class="cmd-prompt">$</span><span class="cmd-code">chown <span class="cmd-arg">user:group file.txt</span></span></div>
+          <div class="cmd-explain"><div class="cmd-en">Change file owner and group.</div><div class="cmd-bn">ফাইলের মালিক ও গ্রুপ পরিবর্তন করে।</div></div>
+        </div>
+        <div class="cmd-row">
+          <div class="cmd-line"><span class="cmd-prompt">$</span><span class="cmd-code">chown <span class="cmd-flag">-R</span> <span class="cmd-arg">user:group /dir</span></span></div>
+          <div class="cmd-explain"><div class="cmd-en">Change owner recursively for entire directory.</div><div class="cmd-bn">পুরো ডিরেক্টরিতে রিকার্সিভলি মালিক পরিবর্তন করে।</div></div>
+        </div>
+        <div class="cmd-row">
+          <div class="cmd-line"><span class="cmd-prompt">$</span><span class="cmd-code">chmod <span class="cmd-flag">+t</span> <span class="cmd-arg">/tmp</span></span></div>
+          <div class="cmd-explain"><div class="cmd-en">Set sticky bit — only file owner can delete files in that directory.</div><div class="cmd-bn">স্টিকি বিট সেট করে — শুধু ফাইল মালিক মুছতে পারে।</div></div>
+        </div>
+        <div class="cmd-row">
+          <div class="cmd-line"><span class="cmd-prompt">$</span><span class="cmd-code">umask</span></div>
+          <div class="cmd-explain"><div class="cmd-en">Show default permission mask for new files.</div><div class="cmd-bn">নতুন ফাইলের ডিফল্ট অনুমতি মাস্ক দেখায়।</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="cmd-card lv-inter wide">
+      <div class="ch"><div class="ch-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><span class="ch-title">Permission Reference Table — অনুমতি রেফারেন্স টেবিল</span></div>
+      <div class="cb">
+        <div class="tbl-wrap">
+          <table>
+            <tr><th>NUMBER</th><th>PERMISSION</th><th>MEANING (EN)</th><th>MEANING (বাংলা)</th></tr>
+            <tr><td>777</td><td>rwxrwxrwx</td><td>Everyone can do everything</td><td><span class="td-bn">সবাই সব করতে পারে — বিপজ্জনক!</span></td></tr>
+            <tr><td>755</td><td>rwxr-xr-x</td><td>Owner full, others read+execute</td><td><span class="td-bn">মালিক সব, অন্যরা পড়া+চালানো</span></td></tr>
+            <tr><td>644</td><td>rw-r--r--</td><td>Owner read+write, others read only</td><td><span class="td-bn">মালিক পড়া+লেখা, অন্যরা শুধু পড়া</span></td></tr>
+            <tr><td>600</td><td>rw-------</td><td>Only owner can read+write</td><td><span class="td-bn">শুধু মালিক পড়তে ও লিখতে পারে</span></td></tr>
+            <tr><td>4755</td><td>rwsr-xr-x</td><td>SUID — runs as file owner</td><td><span class="td-bn">SUID — ফাইল মালিকের হিসেবে চলে</span></td></tr>
+            <tr><td>1777</td><td>rwxrwxrwt</td><td>Sticky bit — like /tmp</td><td><span class="td-bn">স্টিকি বিট — /tmp এর মতো</span></td></tr>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- PROCESS & NETWORK -->
+<section class="section" id="process">
+  <div class="sec-head">
+    <span class="sec-icon">📡</span>
+    <h2 class="sec-title">Process & Network Monitoring <span class="level-tag lt-inter">INTERMEDIATE</span></h2>
+    <span class="sec-title-bn">প্রসেস ও নেটওয়ার্ক মনিটরিং</span>
+  </div>
+  <div class="cmd-grid">
+
+    <div class="cmd-card lv-inter">
+      <div class="ch"><div class="ch-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><span class="ch-title">Process Management</span><button class="ch-copy" onclick="copyCard(this)">copy</button></div>
+      <div class="cb">
+        <div class="cmd-row">
+          <div class="cmd-line"><span class="cmd-prompt">$</span><span class="cmd-code">ps aux</span></div>
+          <div class="cmd-explain"><div class="cmd-en">List ALL running processes — every single one.</div><div class="cmd-bn">সমস্ত চলমান প্রসেস তালিকাভুক্ত করে।</div></div>
+        </div>
+        <div class="cmd-row">
+          <div class="cmd-line"><span class="cmd-prompt">$</span><span class="cmd-code">top</span></div>
+          <div class="cmd-explain"><div class="cmd-en">Interactive process viewer — like Task Manager for Linux.</div><div class="cmd-bn">ইন্টারেক্টিভ প্রসেস ভিউয়ার — লিনাক্সের Task Manager।</div></div>
+        </div>
+        <div class="cmd-row">
+          <div class="cmd-line"><span class="cmd-prompt">$</span><span class="cmd-code">kill <span class="cmd-flag">-9</span> <span class="cmd-arg">1234</span></span></div>
+          <div class="cmd-explain"><div class="cmd-en">Force kill process by PID. No mercy, no confirmation.</div><div class="cmd-bn">PID দিয়ে প্রসেস জোর করে মেরে ফেলে। কোনো দয়া নেই!</div></div>
+        </div>
+        <div class="cmd-row">
+          <div class="cmd-line"><span class="cmd-prompt">$</span><span class="cmd-code">pgrep <span class="cmd-arg">nginx</span></span></div>
+          <div class="cmd-explain"><div class="cmd-en">Find PID of a process by name.</div><div class="cmd-bn">নাম দিয়ে প্রসেসের PID খোঁজে।</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="cmd-card lv-inter">
+      <div class="ch"><div class="ch-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><span class="ch-title">Network Commands</span><button class="ch-copy" onclick="copyCard(this)">copy</button></div>
+      <div class="cb">
+        <div class="cmd-row">
+          <div class="cmd-line"><span class="cmd-prompt">$</span><span class="cmd-code">ip addr</span></div>
+          <div class="cmd-explain"><div class="cmd-en">Show all network interfaces and their IP addresses.</div><div class="cmd-bn">সব নেটওয়ার্ক ইন্টারফেস ও IP দেখায়।</div></div>
+        </div>
+        <div class="cmd-row">
+          <div class="cmd-line"><span class="cmd-prompt">$</span><span class="cmd-code">ss <span class="cmd-flag">-tuln</span></span></div>
+          <div class="cmd-explain"><div class="cmd-en">Show open ports. What services are listening?</div><div class="cmd-bn">খোলা পোর্ট দেখায়। কোন সার্ভিস শুনছে?</div></div>
+        </div>
+        <div class="cmd-row">
+          <div class="cmd-line"><span class="cmd-prompt">$</span><span class="cmd-code">lsof <span class="cmd-flag">-i -P -n</span></span></div>
+          <div class="cmd-explain"><div class="cmd-en">List open network sockets with process info.</div><div class="cmd-bn">প্রসেস তথ্যসহ খোলা নেটওয়ার্ক সকেট দেখায়।</div></div>
+        </div>
+        <div class="cmd-row">
+          <div class="cmd-line"><span class="cmd-prompt">$</span><span class="cmd-code">tcpdump <span class="cmd-flag">-i</span> <span class="cmd-arg">eth0</span></span></div>
+          <div class="cmd-explain"><div class="cmd-en">Capture network packets on interface. Needs root!</div><div class="cmd-bn">ইন্টারফেসে প্যাকেট ক্যাপচার করে। root দরকার!</div></div>
+        </div>
+        <div class="tip tip-c">ℹ️ <div><div><code>ss -tuln</code> is the modern replacement for <code>netstat</code>. / <span class="tip-bn"><code>ss -tuln</code> হলো <code>netstat</code>-এর আধুনিক বিকল্প।</span></div></div></div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- PORTS TABLE -->
+<section class="section" id="ports">
+  <div class="sec-head">
+    <span class="sec-icon">🌐</span>
+    <h2 class="sec-title">Common Ports Reference <span class="level-tag lt-basic">BASIC</span></h2>
+    <span class="sec-title-bn">সাধারণ পোর্ট রেফারেন্স</span>
+  </div>
+  <div class="tbl-wrap">
+    <table>
+      <tr><th>PORT</th><th>PROTOCOL</th><th>SERVICE (EN)</th><th>SERVICE (বাংলা)</th></tr>
+      <tr><td>21</td><td>FTP</td><td>File Transfer — still alive, unfortunately</td><td><span class="td-bn">ফাইল ট্রান্সফার — দুর্ভাগ্যবশত এখনো বেঁচে!</span></td></tr>
+      <tr><td>22</td><td>SSH</td><td>Secure Shell — your best friend 🤝</td><td><span class="td-bn">নিরাপদ রিমোট কানেকশন — পেন্টেস্টারের বন্ধু!</span></td></tr>
+      <tr><td>53</td><td>DNS</td><td>"It's always DNS." — everyone, always</td><td><span class="td-bn">ডোমেইন নেম সার্ভিস — সমস্যার মূল সবসময় DNS!</span></td></tr>
+      <tr><td>80</td><td>HTTP</td><td>Web traffic (unencrypted dinosaur)</td><td><span class="td-bn">ওয়েব ট্র্যাফিক — এনক্রিপ্টহীন ডাইনোসর</span></td></tr>
+      <tr><td>443</td><td>HTTPS</td><td>Secure web — HTTP with ego</td><td><span class="td-bn">নিরাপদ ওয়েব — HTTP-র আত্মঅহংকারী সংস্করণ</span></td></tr>
+      <tr><td>3306</td><td>MySQL</td><td>Database — where real secrets live</td><td><span class="td-bn">ডেটাবেজ — যেখানে আসল রহস্য লুকিয়ে</span></td></tr>
+      <tr><td>3389</td><td>RDP</td><td>Windows Remote Desktop — vulnerability magnet</td><td><span class="td-bn">উইন্ডোজ রিমোট — দুর্বলতার চুম্বক</span></td></tr>
+      <tr><td>445</td><td>SMB</td><td>Windows file sharing — EternalBlue lives here</td><td><span class="td-bn">উইন্ডোজ ফাইল শেয়ারিং — EternalBlue এখানেই</span></td></tr>
+    </table>
+  </div>
+</section>
+
+<!-- SCRIPTS -->
+<section class="section" id="scripts">
+  <div class="sec-head">
+    <span class="sec-icon">⚙️</span>
+    <h2 class="sec-title">Bash Scripts & Productivity <span class="level-tag lt-inter">INTERMEDIATE</span></h2>
+    <span class="sec-title-bn">ব্যাশ স্ক্রিপ্ট ও প্রোডাক্টিভিটি</span>
+  </div>
+  <div class="cmd-grid">
+
+    <div class="cmd-card lv-inter">
+      <div class="ch"><div class="ch-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><span class="ch-title">Running Scripts</span><button class="ch-copy" onclick="copyCard(this)">copy</button></div>
+      <div class="cb">
+        <div class="cmd-row">
+          <div class="cmd-line"><span class="cmd-prompt">$</span><span class="cmd-code">chmod <span class="cmd-flag">+x</span> <span class="cmd-arg">script.sh</span> && ./script.sh</span></div>
+          <div class="cmd-explain"><div class="cmd-en">Make executable and run immediately.</div><div class="cmd-bn">এক্সিকিউটেবল করে সাথে সাথে চালায়।</div></div>
+        </div>
+        <div class="cmd-row">
+          <div class="cmd-line"><span class="cmd-prompt">$</span><span class="cmd-code">./script.sh <span class="cmd-flag">&</span></span></div>
+          <div class="cmd-explain"><div class="cmd-en">Run script in background — terminal stays free.</div><div class="cmd-bn">ব্যাকগ্রাউন্ডে স্ক্রিপ্ট চালায় — টার্মিনাল মুক্ত থাকে।</div></div>
+        </div>
+        <div class="cmd-row">
+          <div class="cmd-line"><span class="cmd-prompt">$</span><span class="cmd-code">nohup ./script.sh > <span class="cmd-arg">out.log</span> 2>&1 <span class="cmd-flag">&</span></span></div>
+          <div class="cmd-explain"><div class="cmd-en">Run in background, survive terminal close, save output to log.</div><div class="cmd-bn">ব্যাকগ্রাউন্ডে চালায়, টার্মিনাল বন্ধ হলেও চলে, লগে সেভ করে।</div></div>
+        </div>
+        <div class="cmd-row">
+          <div class="cmd-line"><span class="cmd-prompt">$</span><span class="cmd-code">echo $?</span></div>
+          <div class="cmd-explain"><div class="cmd-en">Exit code of last command. 0 = success, anything else = error.</div><div class="cmd-bn">শেষ কমান্ডের exit code। 0 = সফল, বাকি = ত্রুটি।</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="cmd-card lv-inter">
+      <div class="ch"><div class="ch-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><span class="ch-title">Bash Shortcuts</span><button class="ch-copy" onclick="copyCard(this)">copy</button></div>
+      <div class="cb">
+        <div class="cmd-row">
+          <div class="cmd-line"><span class="cmd-prompt">$</span><span class="cmd-code">Ctrl + C</span></div>
+          <div class="cmd-explain"><div class="cmd-en">Stop running command immediately.</div><div class="cmd-bn">চলমান কমান্ড তাৎক্ষণিক বন্ধ করে।</div></div>
+        </div>
+        <div class="cmd-row">
+          <div class="cmd-line"><span class="cmd-prompt">$</span><span class="cmd-code">Ctrl + R</span></div>
+          <div class="cmd-explain"><div class="cmd-en">Reverse search command history — type to find old commands.</div><div class="cmd-bn">কমান্ড হিস্ট্রিতে রিভার্স সার্চ করে।</div></div>
+        </div>
+        <div class="cmd-row">
+          <div class="cmd-line"><span class="cmd-prompt">$</span><span class="cmd-code">!!</span></div>
+          <div class="cmd-explain"><div class="cmd-en">Repeat last command. <code>sudo !!</code> = run last as root!</div><div class="cmd-bn">শেষ কমান্ড আবার চালায়। <code>sudo !!</code> = root হিসেবে চালায়!</div></div>
+        </div>
+        <div class="cmd-row">
+          <div class="cmd-line"><span class="cmd-prompt">$</span><span class="cmd-code">alias ll='ls -lah'</span></div>
+          <div class="cmd-explain"><div class="cmd-en">Create a shortcut command. Add to ~/.bashrc to make permanent.</div><div class="cmd-bn">শর্টকাট কমান্ড তৈরি করে। স্থায়ী করতে ~/.bashrc-এ যোগ করুন।</div></div>
+        </div>
+        <div class="cmd-row">
+          <div class="cmd-line"><span class="cmd-prompt">$</span><span class="cmd-code">history <span class="cmd-flag">-c</span></span></div>
+          <div class="cmd-explain"><div class="cmd-en">Clear command history — anti-forensics 101!</div><div class="cmd-bn">কমান্ড হিস্ট্রি মুছে — অ্যান্টি-ফরেনসিক্স ১০১!</div></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ======== ADVANCED ======== -->
+<div class="sec-div section"><div class="sec-div-line"></div><div class="sec-div-label">🟠 ADVANCED — অ্যাডভান্সড</div><div class="sec-div-line"></div></div>
+
+<section class="section" id="advanced">
+  <div class="sec-head">
+    <span class="sec-icon">🔥</span>
+    <h2 class="sec-title">Advanced Commands <span class="level-tag lt-adv">ADVANCED</span></h2>
+    <span class="sec-title-bn">অ্যাডভান্সড কমান্ড</span>
+  </div>
+  <div class="cmd-grid">
+
+    <div class="cmd-card lv-adv">
+      <div class="ch"><div class="ch-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><span class="ch-title">Pipe Chaining — পাইপ চেইনিং</span><button class="ch-copy" onclick="copyCard(this)">copy</button></div>
+      <div class="cb">
+        <div class="cmd-row">
+          <div class="cmd-line"><span class="cmd-prompt">$</span><span class="cmd-code">cat /etc/passwd <span class="cmd-flag">|</span> grep <span class="cmd-arg">root</span></span></div>
+          <div class="cmd-explain"><div class="cmd-en">Output of cat piped into grep — find root entries.</div><div class="cmd-bn">cat-এর আউটপুট grep-এ পাঠায় — root এন্ট্রি খোঁজে।</div></div>
+        </div>
+        <div class="cmd-row">
+          <div class="cmd-line"><span class="cmd-prompt">$</span><span class="cmd-code">ps aux <span class="cmd-flag">|</span> grep <span class="cmd-arg">apache</span> <span class="cmd-flag">|</span> awk <span class="cmd-arg">'{print $2}'</span></span></div>
+          <div class="cmd-explain"><div class="cmd-en">Find apache processes and extract just their PIDs.</div><div class="cmd-bn">Apache প্রসেস খুঁজে শুধু PID বের করে।</div></div>
+        </div>
+        <div class="cmd-row">
+          <div class="cmd-line"><span class="cmd-prompt">$</span><span class="cmd-code">find / <span class="cmd-flag">-name</span> <span class="cmd-arg">"*.log"</span> 2>/dev/null <span class="cmd-flag">|</span> xargs grep <span class="cmd-flag">-l</span> <span class="cmd-arg">"password"</span></span></div>
+          <div class="cmd-explain"><div class="cmd-en">Find all log files containing "password". Pentesters love this!</div><div class="cmd-bn">সব লগ ফাইলে "password" খোঁজে। পেন্টেস্টারদের প্রিয়!</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="cmd-card lv-adv">
+      <div class="ch"><div class="ch-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><span class="ch-title">User & Sudo Enumeration</span><button class="ch-copy" onclick="copyCard(this)">copy</button></div>
+      <div class="cb">
+        <div class="cmd-row">
+          <div class="cmd-line"><span class="cmd-prompt">$</span><span class="cmd-code">sudo <span class="cmd-flag">-l</span></span></div>
+          <div class="cmd-explain"><div class="cmd-en">What can THIS user sudo? Privilege escalation starting point #1.</div><div class="cmd-bn">এই ইউজার কী sudo করতে পারে? প্রিভিলেজ এস্কেলেশনের প্রথম পদক্ষেপ।</div></div>
+        </div>
+        <div class="cmd-row">
+          <div class="cmd-line"><span class="cmd-prompt">$</span><span class="cmd-code">cat <span class="cmd-arg">/etc/passwd</span> <span class="cmd-flag">|</span> cut <span class="cmd-flag">-d:</span> <span class="cmd-arg">-f1</span></span></div>
+          <div class="cmd-explain"><div class="cmd-en">List all usernames on the system.</div><div class="cmd-bn">সিস্টেমের সব ইউজারনেম দেখায়।</div></div>
+        </div>
+        <div class="cmd-row">
+          <div class="cmd-line"><span class="cmd-prompt">$</span><span class="cmd-code">cat <span class="cmd-arg">/etc/shadow</span></span></div>
+          <div class="cmd-explain"><div class="cmd-en">Password hashes — only readable as root. Gold if you can access it!</div><div class="cmd-bn">পাসওয়ার্ড হ্যাশ — শুধু root পড়তে পারে। যদি এক্সেস পাও তাহলে সোনার খনি!</div></div>
+        </div>
+        <div class="cmd-row">
+          <div class="cmd-line"><span class="cmd-prompt">$</span><span class="cmd-code">id && whoami && groups</span></div>
+          <div class="cmd-explain"><div class="cmd-en">Your current user, UID, and group memberships.</div><div class="cmd-bn">তোমার বর্তমান ইউজার, UID ও গ্রুপ সদস্যতা।</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="cmd-card lv-adv">
+      <div class="ch"><div class="ch-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><span class="ch-title">Cron Jobs — Persistence Vector</span><button class="ch-copy" onclick="copyCard(this)">copy</button></div>
+      <div class="cb">
+        <div class="cmd-row">
+          <div class="cmd-line"><span class="cmd-prompt">$</span><span class="cmd-code">crontab <span class="cmd-flag">-l</span></span></div>
+          <div class="cmd-explain"><div class="cmd-en">List your scheduled cron jobs.</div><div class="cmd-bn">তোমার শিডিউল করা cron জব দেখায়।</div></div>
+        </div>
+        <div class="cmd-row">
+          <div class="cmd-line"><span class="cmd-prompt">$</span><span class="cmd-code">cat <span class="cmd-arg">/etc/crontab</span></span></div>
+          <div class="cmd-explain"><div class="cmd-en">System-wide cron jobs — often run as root!</div><div class="cmd-bn">সিস্টেম-ওয়াইড cron জব — প্রায়ই root হিসেবে চলে!</div></div>
+        </div>
+        <div class="cmd-row">
+          <div class="cmd-line"><span class="cmd-prompt">$</span><span class="cmd-code">ls <span class="cmd-flag">-la</span> <span class="cmd-arg">/etc/cron*</span></span></div>
+          <div class="cmd-explain"><div class="cmd-en">List all cron directories — look for writable scripts!</div><div class="cmd-bn">সব cron ডিরেক্টরি দেখায় — লেখার যোগ্য স্ক্রিপ্ট খোঁজো!</div></div>
+        </div>
+        <div class="tip tip-r">🚨 <div><div>Writable cron script running as root = instant privilege escalation! / <span class="tip-bn">root হিসেবে চলা লেখার যোগ্য cron স্ক্রিপ্ট = তাৎক্ষণিক প্রিভিলেজ এস্কেলেশন!</span></div></div></div>
+      </div>
+    </div>
+
+    <div class="cmd-card lv-adv">
+      <div class="ch"><div class="ch-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><span class="ch-title">Environment & PATH Hijacking</span><button class="ch-copy" onclick="copyCard(this)">copy</button></div>
+      <div class="cb">
+        <div class="cmd-row">
+          <div class="cmd-line"><span class="cmd-prompt">$</span><span class="cmd-code">echo $PATH</span></div>
+          <div class="cmd-explain"><div class="cmd-en">Show directories searched for commands. Add a writable dir first = PATH hijack!</div><div class="cmd-bn">কমান্ড খোঁজার ডিরেক্টরি দেখায়। প্রথমে লেখার যোগ্য dir যোগ করলে PATH হাইজ্যাক!</div></div>
+        </div>
+        <div class="cmd-row">
+          <div class="cmd-line"><span class="cmd-prompt">$</span><span class="cmd-code">export PATH=<span class="cmd-arg">/tmp</span>:$PATH</span></div>
+          <div class="cmd-explain"><div class="cmd-en">Add /tmp to the beginning of PATH — for PATH hijacking attacks.</div><div class="cmd-bn">/tmp কে PATH-এর শুরুতে যোগ করে — PATH হাইজ্যাক আক্রমণের জন্য।</div></div>
+        </div>
+        <div class="cmd-row">
+          <div class="cmd-line"><span class="cmd-prompt">$</span><span class="cmd-code">ls <span class="cmd-flag">-ld</span> $(echo $PATH <span class="cmd-flag">|</span> tr <span class="cmd-arg">':'</span> <span class="cmd-arg">'\n'</span>)</span></div>
+          <div class="cmd-explain"><div class="cmd-en">Check each directory in PATH — find writable ones!</div><div class="cmd-bn">PATH-এর প্রতিটি ডিরেক্টরি চেক করে — লেখার যোগ্য খোঁজো!</div></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ======== EXPERT ======== -->
+<div class="sec-div section"><div class="sec-div-line"></div><div class="sec-div-label">🔴 EXPERT — বিশেষজ্ঞ</div><div class="sec-div-line"></div></div>
+
+<section class="section" id="sysinfo">
+  <div class="sec-head">
+    <span class="sec-icon">💻</span>
+    <h2 class="sec-title">System Info & Kernel <span class="level-tag lt-expert">EXPERT</span></h2>
+    <span class="sec-title-bn">সিস্টেম তথ্য ও কার্নেল</span>
+  </div>
+  <div class="cmd-grid">
+
+    <div class="cmd-card lv-expert">
+      <div class="ch"><div class="ch-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><span class="ch-title">Kernel & System Info</span><button class="ch-copy" onclick="copyCard(this)">copy</button></div>
+      <div class="cb">
+        <div class="cmd-row">
+          <div class="cmd-line"><span class="cmd-prompt">$</span><span class="cmd-code">uname <span class="cmd-flag">-a</span></span></div>
+          <div class="cmd-explain"><div class="cmd-en">Kernel version + OS info — Google this for exploits!</div><div class="cmd-bn">কার্নেল ভার্সন + OS তথ্য — এটা দিয়ে এক্সপ্লয়িট গুগল করো!</div></div>
+        </div>
+        <div class="cmd-row">
+          <div class="cmd-line"><span class="cmd-prompt">$</span><span class="cmd-code">cat <span class="cmd-arg">/proc/version</span></span></div>
+          <div class="cmd-explain"><div class="cmd-en">Detailed kernel version — useful for CVE matching.</div><div class="cmd-bn">বিস্তারিত কার্নেল ভার্সন — CVE ম্যাচিংয়ে কাজে লাগে।</div></div>
+        </div>
+        <div class="cmd-row">
+          <div class="cmd-line"><span class="cmd-prompt">$</span><span class="cmd-code">cat <span class="cmd-arg">/etc/os-release</span></span></div>
+          <div class="cmd-explain"><div class="cmd-en">OS name and version details.</div><div class="cmd-bn">OS নাম ও ভার্সনের বিস্তারিত।</div></div>
+        </div>
+        <div class="cmd-row">
+          <div class="cmd-line"><span class="cmd-prompt">$</span><span class="cmd-code">free <span class="cmd-flag">-h</span></span></div>
+          <div class="cmd-explain"><div class="cmd-en">Memory usage in human-readable format.</div><div class="cmd-bn">মেমোরি ব্যবহার সহজে বোধগম্য ফরম্যাটে।</div></div>
+        </div>
+        <div class="cmd-row">
+          <div class="cmd-line"><span class="cmd-prompt">$</span><span class="cmd-code">df <span class="cmd-flag">-h</span></span></div>
+          <div class="cmd-explain"><div class="cmd-en">Disk space usage — see how full each partition is.</div><div class="cmd-bn">ডিস্ক স্পেস ব্যবহার — প্রতিটি পার্টিশন কতটা পূর্ণ।</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="cmd-card lv-expert">
+      <div class="ch"><div class="ch-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><span class="ch-title">Linux Capabilities</span><button class="ch-copy" onclick="copyCard(this)">copy</button></div>
+      <div class="cb">
+        <div class="cmd-row">
+          <div class="cmd-line"><span class="cmd-prompt">#</span><span class="cmd-code">getcap <span class="cmd-flag">-r</span> / 2>/dev/null</span></div>
+          <div class="cmd-explain"><div class="cmd-en">Find all binaries with Linux capabilities — overlooked priv esc vector!</div><div class="cmd-bn">Linux capabilities সহ সব বাইনারি খোঁজে — উপেক্ষিত প্রিভিলেজ এস্কেলেশন পথ!</div></div>
+        </div>
+        <div class="cmd-row">
+          <div class="cmd-line"><span class="cmd-prompt">#</span><span class="cmd-code">setcap cap_setuid+eip <span class="cmd-arg">/usr/bin/python3</span></span></div>
+          <div class="cmd-explain"><div class="cmd-en">Set cap_setuid capability — can be used to get root shell!</div><div class="cmd-bn">cap_setuid capability সেট করে — root শেল পেতে ব্যবহার করা যায়!</div></div>
+        </div>
+        <div class="tip tip-r">🎯 <div><div><code>cap_setuid</code> or <code>cap_net_bind_service</code> = privilege escalation gold. Check GTFOBins! / <span class="tip-bn"><code>cap_setuid</code> বা <code>cap_net_bind_service</code> = প্রিভিলেজ এস্কেলেশনের সোনা!</span></div></div></div>
+      </div>
+    </div>
+
+    <div class="cmd-card lv-expert">
+      <div class="ch"><div class="ch-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><span class="ch-title">Anti-Forensics</span><button class="ch-copy" onclick="copyCard(this)">copy</button></div>
+      <div class="cb">
+        <div class="cmd-row">
+          <div class="cmd-line"><span class="cmd-prompt">$</span><span class="cmd-code">echo > ~/.bash_history</span></div>
+          <div class="cmd-explain"><div class="cmd-en">Clear bash history — leave no trace of commands.</div><div class="cmd-bn">ব্যাশ হিস্ট্রি মুছে — কমান্ডের কোনো চিহ্ন রাখে না।</div></div>
+        </div>
+        <div class="cmd-row">
+          <div class="cmd-line"><span class="cmd-prompt">#</span><span class="cmd-code">cat <span class="cmd-arg">/dev/null</span> > <span class="cmd-arg">/var/log/auth.log</span></span></div>
+          <div class="cmd-explain"><div class="cmd-en">Wipe authentication log — removes login evidence.</div><div class="cmd-bn">অথেন্টিকেশন লগ মুছে — লগইনের প্রমাণ সরিয়ে দেয়।</div></div>
+        </div>
+        <div class="cmd-row">
+          <div class="cmd-line"><span class="cmd-prompt">#</span><span class="cmd-code">rm <span class="cmd-flag">-f</span> <span class="cmd-arg">/var/log/wtmp /var/log/btmp /var/log/lastlog</span></span></div>
+          <div class="cmd-explain"><div class="cmd-en">Delete login tracking files — wipes "last login" records.</div><div class="cmd-bn">লগইন ট্র্যাকিং ফাইল মুছে — "last login" রেকর্ড পরিষ্কার করে।</div></div>
+        </div>
+        <div class="tip tip-r">⚠️ <div><div>Only use these on systems you OWN or have permission to test! / <span class="tip-bn">শুধুমাত্র নিজের বা অনুমতিপ্রাপ্ত সিস্টেমে ব্যবহার করুন!</span></div></div></div>
+      </div>
+    </div>
+
+    <div class="cmd-card lv-expert">
+      <div class="ch"><div class="ch-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><span class="ch-title">SSH & Remote Access</span><button class="ch-copy" onclick="copyCard(this)">copy</button></div>
+      <div class="cb">
+        <div class="cmd-row">
+          <div class="cmd-line"><span class="cmd-prompt">$</span><span class="cmd-code">ssh <span class="cmd-arg">user@ip</span></span></div>
+          <div class="cmd-explain"><div class="cmd-en">Connect to remote system securely.</div><div class="cmd-bn">নিরাপদে রিমোট সিস্টেমে সংযুক্ত হয়।</div></div>
+        </div>
+        <div class="cmd-row">
+          <div class="cmd-line"><span class="cmd-prompt">$</span><span class="cmd-code">ssh <span class="cmd-flag">-L 8080:localhost:80</span> <span class="cmd-arg">user@ip</span></span></div>
+          <div class="cmd-explain"><div class="cmd-en">SSH local port forwarding — tunnel traffic through SSH.</div><div class="cmd-bn">SSH লোকাল পোর্ট ফরওয়ার্ডিং — SSH দিয়ে ট্র্যাফিক টানেল করে।</div></div>
+        </div>
+        <div class="cmd-row">
+          <div class="cmd-line"><span class="cmd-prompt">$</span><span class="cmd-code">echo <span class="cmd-arg">"ssh-rsa AAA..."</span> >> ~/.ssh/authorized_keys</span></div>
+          <div class="cmd-explain"><div class="cmd-en">Add SSH key for passwordless login — persistence technique.</div><div class="cmd-bn">পাসওয়ার্ডহীন লগইনের জন্য SSH key যোগ করে — পার্সিস্টেন্স কৌশল।</div></div>
+        </div>
+        <div class="cmd-row">
+          <div class="cmd-line"><span class="cmd-prompt">$</span><span class="cmd-code">scp <span class="cmd-arg">file user@host:/path/</span></span></div>
+          <div class="cmd-explain"><div class="cmd-en">Securely copy file to remote host.</div><div class="cmd-bn">রিমোট হোস্টে নিরাপদে ফাইল কপি করে।</div></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+</main>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo-wrap">
+    <img class="footer-logo" src="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEASABIAAD/4gHYSUNDX1BST0ZJTEUAAQEAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVogAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAAAAAAACSgAAAPhAAAts9YWVogAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGcAbABlACAASQBuAGMALgAgADIAMAAxADb/2wBDAAMCAgMCAgMDAwMEAwMEBQgFBQQEBQoH/8QANRAAAQMCBAMHCQAHAQAAAAAAAQACBBEFITSE/9oADAMBAAIRAxEAPwDfERARFjYiIiIiIiIiIiJiLGxERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERER" alt="Mr. Root logo" loading="lazy">
+  </div>
+  <div class="footer-name">💀 Made by Mr. Root</div>
+  <div class="footer-sub">Ethical Hacker · Penetration Tester · Linux Enthusiast</div>
+  <div class="footer-sub-bn">নৈতিক হ্যাকার · পেনিট্রেশন টেস্টার · লিনাক্স উৎসাহী</div>
+  <div style="margin-top:1.5rem;font-size:.72rem;color:var(--muted);">
+    For authorized testing only. Know the rules before you hack. <br>
+    <span style="font-family:'Hind Siliguri',sans-serif;">শুধুমাত্র অনুমোদিত টেস্টিংয়ের জন্য। হ্যাক করার আগে নিয়ম জানুন।</span>
+  </div>
+  <div style="margin-top:1rem;font-size:.7rem;color:rgba(76,175,80,.35);">root@kali:~# exit &nbsp;|&nbsp; <span style="color:var(--green);">[ KNOWLEDGE OBTAINED ]</span></div>
+</footer>
+
+<a class="btop" id="btop" href="#">↑</a>
+
+<script>
+// Matrix rain
+const cv=document.getElementById('matrix'),ctx=cv.getContext('2d');
+function rsz(){cv.width=window.innerWidth;cv.height=window.innerHeight;}
+rsz();window.addEventListener('resize',rsz);
+const ch='アイウエオカキクケコ0123456789ABCDEF!@#$%^';
+const cols=Math.floor(cv.width/16),dr=Array(cols).fill(1);
+setInterval(()=>{
+  ctx.fillStyle='rgba(2,12,4,0.05)';ctx.fillRect(0,0,cv.width,cv.height);
+  ctx.fillStyle='#00ff41';ctx.font='14px Share Tech Mono';
+  dr.forEach((y,i)=>{ctx.fillText(ch[Math.floor(Math.random()*ch.length)],i*16,y*16);if(y*16>cv.height&&Math.random()>.975)dr[i]=0;dr[i]++;});
+},50);
+
+// Cursor
+const cur=document.getElementById('cur');
+document.addEventListener('mousemove',e=>{cur.style.left=e.clientX+'px';cur.style.top=e.clientY+'px';});
+
+// Progress bar
+window.addEventListener('scroll',()=>{
+  const p=(window.scrollY/(document.body.scrollHeight-window.innerHeight))*100;
+  document.getElementById('prog').style.width=p+'%';
+  document.getElementById('btop').classList.toggle('vis',window.scrollY>400);
+});
+
+// Reveal
+const obs=new IntersectionObserver(entries=>entries.forEach(e=>{if(e.isIntersecting)e.target.classList.add('vis');}),{threshold:.07});
+document.querySelectorAll('.section').forEach(s=>obs.observe(s));
+
+// Skill bars
+const bo=new IntersectionObserver(entries=>entries.forEach(e=>{if(e.isIntersecting){e.target.querySelectorAll('.lb-fill').forEach(f=>{f.style.width=f.dataset.w+'%';});}}),{threshold:.3});
+document.querySelectorAll('.level-bars').forEach(b=>bo.observe(b));
+
+// Copy card
+function copyCard(btn){
+  const t=btn.closest('.cmd-card').querySelectorAll('.cmd-code');
+  const text=[...t].map(e=>e.innerText).join('\n');
+  navigator.clipboard.writeText(text).catch(()=>{});
+  btn.textContent='✓';btn.classList.add('ok');
+  setTimeout(()=>{btn.textContent='copy';btn.classList.remove('ok');},1500);
+}
+
+// Search
+const cmds=[
+  {cmd:'ls -la',en:'List all files including hidden',bn:'লুকানো ফাইলসহ সব দেখায়'},
+  {cmd:'cd ..',en:'Go up one directory',bn:'এক লেভেল উপরে যায়'},
+  {cmd:'find / -perm -4000 2>/dev/null',en:'Find SUID binaries',bn:'SUID বাইনারি খোঁজে'},
+  {cmd:'chmod +x script.sh',en:'Make file executable',bn:'ফাইল এক্সিকিউটেবল করে'},
+  {cmd:'sudo -l',en:'Check sudo privileges',bn:'sudo সুবিধা চেক করে'},
+  {cmd:'ps aux',en:'List all processes',bn:'সব প্রসেস দেখায়'},
+  {cmd:'kill -9 PID',en:'Force kill a process',bn:'প্রসেস জোর করে বন্ধ করে'},
+  {cmd:'ss -tuln',en:'Show open ports',bn:'খোলা পোর্ট দেখায়'},
+  {cmd:'ip addr',en:'Show IP addresses',bn:'IP ঠিকানা দেখায়'},
+  {cmd:'uname -a',en:'Kernel version info',bn:'কার্নেল ভার্সন তথ্য'},
+  {cmd:'cat /etc/shadow',en:'Password hashes (root only)',bn:'পাসওয়ার্ড হ্যাশ (শুধু root)'},
+  {cmd:'crontab -l',en:'List cron jobs',bn:'cron জব দেখায়'},
+  {cmd:'grep -r "password" /etc/',en:'Search for passwords recursively',bn:'রিকার্সিভলি পাসওয়ার্ড খোঁজে'},
+  {cmd:'getcap -r / 2>/dev/null',en:'Find binaries with capabilities',bn:'capabilities সহ বাইনারি খোঁজে'},
+  {cmd:'history -c',en:'Clear command history',bn:'কমান্ড হিস্ট্রি মুছে'},
+  {cmd:'tar -czf archive.tar.gz folder/',en:'Create compressed archive',bn:'কম্প্রেসড আর্কাইভ তৈরি করে'},
+  {cmd:'ssh user@ip',en:'Connect to remote server',bn:'রিমোট সার্ভারে সংযুক্ত হয়'},
+  {cmd:'tcpdump -i eth0',en:'Capture network packets',bn:'নেটওয়ার্ক প্যাকেট ক্যাপচার করে'},
+  {cmd:'lsof -i -P -n',en:'List open network sockets',bn:'খোলা নেটওয়ার্ক সকেট দেখায়'},
+  {cmd:'chmod 4755 file',en:'Set SUID bit on file',bn:'ফাইলে SUID বিট সেট করে'},
+];
+
+const si=document.getElementById('si'),sr=document.getElementById('sr');
+si.addEventListener('input',function(){
+  const q=this.value.trim().toLowerCase();
+  if(!q){sr.classList.remove('on');return;}
+  const m=cmds.filter(c=>c.cmd.toLowerCase().includes(q)||c.en.toLowerCase().includes(q)||c.bn.includes(q)).slice(0,7);
+  if(!m.length){sr.innerHTML='<div class="sr-item"><div class="sr-en">No results found. / কোনো ফলাফল নেই।</div></div>';sr.classList.add('on');return;}
+  sr.innerHTML=m.map(c=>`<div class="sr-item" onclick="cpCmd('${c.cmd.replace(/'/g,"\\'")}',this)"><div class="sr-cmd">${c.cmd}</div><div class="sr-en">${c.en}</div><div class="sr-bn">${c.bn}</div></div>`).join('');
+  sr.classList.add('on');
+});
+document.addEventListener('click',e=>{if(!e.target.closest('.search-box'))sr.classList.remove('on');});
+
+function cpCmd(t,el){
+  navigator.clipboard.writeText(t).catch(()=>{});
+  el.querySelector('.sr-cmd').textContent='✓ Copied!';
+  el.querySelector('.sr-cmd').style.color='var(--cyan)';
+  setTimeout(()=>{sr.classList.remove('on');si.value='';},1200);
+}
+
+// Nav active
+const navLinks=document.querySelectorAll('.nav-link');
+window.addEventListener('scroll',()=>{
+  const secs=document.querySelectorAll('section[id]');
+  let cur='';
+  secs.forEach(s=>{if(window.scrollY>=s.offsetTop-200)cur=s.id;});
+  navLinks.forEach(a=>{a.classList.toggle('active',a.getAttribute('href')==='#'+cur);});
+});
+</script>
+</body>
+</html>
